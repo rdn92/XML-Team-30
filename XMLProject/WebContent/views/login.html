@@ -1,0 +1,14 @@
+<div class="row">
+<form class="form-signin" ng-submit="login()">
+      <h2 class="form-signin-heading">Sign in</h2>
+      <label for="inputUsername" class="sr-only">Username</label>
+      <input ng-model="loginuser.username" type="text" id="inputUsername" class="form-control" placeholder="Username" required autofocus>
+      <label for="inputPassword" class="sr-only">Password</label>
+      <input ng-model="loginuser.password" type="password" id="inputPassword" class="form-control" placeholder="Password" required>
+      <label for="inputRole" class="sr-only">Role</label>
+      <select ng-model="loginuser.role" id="inputRole" class="form-control"
+        ng-options="role as role.label for role in roles" ng-init="loginuser.role = roles[0]">           
+	  </select>
+      <button class="btn btn-lg btn-primary btn-block" type="submit">Sign in</button>
+    </form>
+</div>

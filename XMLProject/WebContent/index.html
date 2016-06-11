@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+<!--     <link rel="icon" href="../../favicon.ico"> -->
+    <title>Skupstina NS</title>
+    <link href="assets/css/bootstrap.min.css" rel="stylesheet">
+    <link href="assets/css/style.css" rel="stylesheet">
+  </head>
+
+  <body ng-app="XMLApp">
+  	
+    <div class="container">
+    <div ng-include="'views/navigation.html'"></div>
+    <div ng-view></div>
+    
+    </div>
+    
+    <footer>
+      <div class="container">
+        <p class="text-muted">Extremely Awesome App developed by me.</p>
+      </div>
+    </footer>
+    
+<!--     <script src="assets/js/bootstrap.min.js"></script> -->
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.6/angular.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.7/angular-route.min.js"></script>
+    <script src="routes/route.js"></script>
+    <script src="services/userService.js"></script>
+    <script src="controllers/loginController.js"></script>
+</body>
+</html>
