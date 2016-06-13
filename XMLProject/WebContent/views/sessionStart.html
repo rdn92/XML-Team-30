@@ -1,0 +1,12 @@
+<div ng-show="user.role === 'president'">
+
+	<button ng-click="nextSession()" type="button" class="btn btn-primary btn-lg">Започни скупштину</button>
+	
+</div>
+
+<div ng-show="user.role === 'alderman'">
+
+	<div class="alert alert-warning" role="alert">Скупштина је тренутно затворена.</div>
+	<p stye="text-align:center;display:block;"><img src="assets/img/snslogo.jpg" align="middle"></p>
+	
+</div>

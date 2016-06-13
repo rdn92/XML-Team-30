@@ -1,17 +1,20 @@
 <nav class="navbar navbar-inverse">
   <div class="container-fluid">
     <div class="navbar-header">
-      <a class="navbar-brand" href="#">WebSiteName</a>
+      <a class="navbar-brand" a ui-sref="home">СНС</a>
     </div>
     <ul class="nav navbar-nav">
-      <li class="active"><a href="#">Home</a></li>
-      <li><a href="#/login">Login</a></li>
-      <li><a href="#">Page 2</a></li>
-      <li><a href="#">Page 3</a></li>
+      <li ui-sref-active="active"><a ui-sref="home">Почетна</a></li>
+      <li ng-hide="user" ui-sref-active="active"><a ui-sref="login">Пријави се</a></li>
+      <li ng-hide="user" ui-sref-active="active"><a ui-sref="register">Региструј се</a></li>
+      <li ng-hide="!user" ui-sref-active="active"><a ui-sref="session" ui-sref-opts="{reload: true, notify: true}">Скупштина</a></li>
     </ul>
-    <ul class="nav navbar-nav navbar-right">
-		<li ng-hide="logoutmenu" id="signoutmenu">
-			<a href="#" ng-click="logout()" id="signoutbtn"><span	class="glyphicon glyphicon-log-out"></span> Sign Out</a>
+    <ul ng-hide="!user" class="nav navbar-nav navbar-right">
+    	<li>
+    		<a href="#/"><span class="glyphicon glyphicon-user"></span> {{ user.username }}</a>
+		</li>
+		<li>
+			<a href="#/" data-ng-controller=logoutController ng-click="logout()"><span class="glyphicon glyphicon-log-out"></span> Одјави се</a>
 		</li>
 	</ul>
   </div>

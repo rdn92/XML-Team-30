@@ -1,7 +1,7 @@
-XMLApp.controller('loginController', ['$scope', '$window', 'userService', function($scope, $window, userService) {
+XMLApp.controller('loginController', ['$scope', '$rootScope', '$window', 'userService', 
+                                      function($scope, $rootScope, $window, userService) {
 	
-	if ($scope.user != null) {
-		alert($scope.user);
+	if ($rootScope.user != null) {
 		$window.location.href = "#/";
 	} 
 	
@@ -20,8 +20,7 @@ XMLApp.controller('loginController', ['$scope', '$window', 'userService', functi
 			function(response) {
 				if (response.data.startsWith("Login")) {
 					console.log("Login success!");
-					$scope.user = $scope.loginuser;
-					alert($scope.user);
+					$rootScope.user = $scope.loginuser;
 					$window.location.href = "#/";
 				} else {
 					console.warn(response.data);

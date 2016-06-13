@@ -16,7 +16,7 @@
   	
     <div class="container">
     <div ng-include="'views/navigation.html'"></div>
-    <div ng-view></div>
+    <div ui-view></div>
     
     </div>
     
@@ -28,9 +28,17 @@
     
 <!--     <script src="assets/js/bootstrap.min.js"></script> -->
     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.6/angular.min.js"></script>
-    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.7/angular-route.min.js"></script>
+<!--     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.7/angular-route.min.js"></script> -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/angular-ui-router/1.0.0-alpha.5/angular-ui-router.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ngStorage/0.3.0/ngStorage.min.js"></script>
     <script src="routes/route.js"></script>
     <script src="services/userService.js"></script>
+    <script src="services/actService.js"></script>
     <script src="controllers/loginController.js"></script>
+    <script src="controllers/logoutController.js"></script>
+    <script src="controllers/sessionController.js"></script>
+    <script src="controllers/sessionStartController.js"></script>
+    <script src="controllers/sessionActController.js"></script>
+    <script src="controllers/sessionAmendmentController.js"></script>
 </body>
 </html>
