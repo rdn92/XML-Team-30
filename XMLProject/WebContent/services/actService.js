@@ -9,4 +9,16 @@ XMLApp.service('actService', function($http) {
 			}
 		});
 	}
+	
+	this.getInProcedureActs = function() {
+		return $http.get(root + "/act/getInProcedureActs");
+	}
+	
+	this.setAccepted = function(akt) {
+		return $http.get(root + "/act/setAccepted/" + akt);
+	}
+	
+	this.setRefused = function(akt) {
+		return $http.get(root + "/act/setRefused/" + akt);
+	}
 });

@@ -11,14 +11,8 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
-import javax.xml.XMLConstants;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.Unmarshaller;
-import javax.xml.transform.Source;
-import javax.xml.transform.stream.StreamSource;
-import javax.xml.validation.Schema;
-import javax.xml.validation.SchemaFactory;
-import javax.xml.validation.Validator;
 
 import org.codehaus.jettison.json.JSONArray;
 import org.codehaus.jettison.json.JSONException;
@@ -30,49 +24,39 @@ import com.marklogic.client.query.StructuredQueryBuilder;
 import com.marklogic.client.query.StructuredQueryDefinition;
 
 import entities.act.Akt;
-import entities.users.Users;
-import sessions.act.ActDaoLocal;
+import entities.amendment.Amandman;
+import sessions.amendment.AmendmentDaoLocal;
 
-@Path("/act")
-public class ActService {
+@Path("/amendment")
+public class AmendmentService {
 	
-	private final Logger log = LoggerFactory.getLogger(ActService.class);
+	private final Logger log = LoggerFactory.getLogger(AmendmentService.class);
 	
 	@EJB
-	private ActDaoLocal actDao;
-	
-	@GET
-    @Produces(MediaType.APPLICATION_XML)
-    public Users create() {
-		
-		StructuredQueryBuilder qb = new StructuredQueryBuilder();
-		StructuredQueryDefinition query = qb.collection("/act/inprocedure/");
-		actDao.executeQuery(query);
-		
-		return null;
-    }	
+	private AmendmentDaoLocal amendDao;
 	
 	@PUT
-	@Path("/upload/{username}")
+	@Path("/upload/{username}/{filename}")
 	@Consumes(MediaType.TEXT_XML)
 	@Produces(MediaType.TEXT_PLAIN)
-    public String uploadAct(@PathParam("username") String userName, String xml) {
+    public String uploadAct(@PathParam("username") String userName, @PathParam("filename") String fileName, String xml) {
 
 		Unmarshaller jaxbUnmarshaller;
 		try {
-		    SchemaFactory factory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
-		    Source schemaFile = new StreamSource(Thread.currentThread().getContextClassLoader().getResourceAsStream("schemas/act.xsd"));
-		    Schema schema = factory.newSchema(schemaFile);
-		    Validator validator = schema.newValidator();
-		    validator.validate(new StreamSource(new StringReader(xml)));
+//		    SchemaFactory factory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
+//		    Source schemaFile = new StreamSource(Thread.currentThread().getContextClassLoader().getResourceAsStream("schemas/amendment.xsd"));
+//		    Schema schema = factory.newSchema(schemaFile);
+//		    Validator validator = schema.newValidator();
+//		    validator.validate(new StreamSource(new StringReader(xml)));
 		    
-		    JAXBContext jaxbContext = JAXBContext.newInstance(Akt.class);
+		    JAXBContext jaxbContext = JAXBContext.newInstance(Amandman.class);
 			jaxbUnmarshaller = jaxbContext.createUnmarshaller();
 			StringReader reader = new StringReader(xml);
-			Akt act = (Akt) jaxbUnmarshaller.unmarshal(reader);
-			act.setKorisnik(userName);
+			Amandman ama = (Amandman) jaxbUnmarshaller.unmarshal(reader);
+			ama.setKorisnik(userName);
+			ama.setAktRef(fileName);
 
-			actDao.persist(act, "/act/inprocedure/", true);
+			amendDao.persist(ama, "/amendment/inprocedure/", true);
 			
 			return "Upload of an XML file succeed.";
 		} catch (Exception e) {
@@ -82,15 +66,15 @@ public class ActService {
     }
 	
 	@GET
-	@Path("/getInProcedureActs")
+	@Path("/getInProcedureAmend")
     @Produces(MediaType.APPLICATION_JSON)
-    public String getInProcedureActs() {
+    public String getInProcedureAmend() {
 		
 		StructuredQueryBuilder qb = new StructuredQueryBuilder();
-		StructuredQueryDefinition query = qb.collection("/act/inprocedure/");
-		List<Akt> list = actDao.executeQuery(query);
+		StructuredQueryDefinition query = qb.collection("/amendment/inprocedure/");
+		List<Amandman> list = amendDao.executeQuery(query);
 		JSONArray res = new JSONArray();
-		for (Akt a : list) {
+		for (Amandman a : list) {
 			JSONObject obj = new JSONObject();
 			try {
 				obj.put("name", a.getNaslov());
@@ -108,15 +92,13 @@ public class ActService {
 	@Path("/setAccepted/{fname}")
     @Produces(MediaType.APPLICATION_JSON)
     public String setAccepted(@PathParam("fname") String fname) {
-
-		return actDao.executeXQuery("xdmp:document-set-collections(\"/act/" + fname + ".xml\", (\"/act/accepted/\"))");
+		return amendDao.executeXQuery("xdmp:document-set-collections(\"/amendment/" + fname + ".xml\", (\"/amendment/accepted/\"))");
     }
 	
 	@GET
 	@Path("/setRefused/{fname}")
     @Produces(MediaType.APPLICATION_JSON)
     public String setRefused(@PathParam("fname") String fname) {
-
-		return actDao.executeXQuery("xdmp:document-delete(\"/act/" + fname + ".xml\")");
+		return amendDao.executeXQuery("xdmp:document-delete(\"/amendment/" + fname + ".xml\")");
     }	
 }

@@ -8,11 +8,11 @@ import sessions.common.GenericDao;
 
 @Stateless
 @Local(UsersDaoLocal.class)
-public class UsersDao extends GenericDao<Users, Long> implements UsersDaoLocal {
+public class UsersDao extends GenericDao<Users> implements UsersDaoLocal {
 	
 public static final String contextPath = "entities.users";
 	
-	public static final String schemaName = "users";
+	public static final String schemaName = "/users/";
 	
 	public UsersDao() {
 		super(contextPath, schemaName);

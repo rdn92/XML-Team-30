@@ -1,3 +1,29 @@
 <div ng-show="user.role === 'president'">
 	<button ng-click="nextSession()" type="button" class="btn btn-primary btn-lg">Заврши амандмане</button>
 </div>
+
+<div ng-show="user.role === 'alderman'">
+	 <div class="form-group">
+	  <div class="list-group">
+	   <label ng-repeat="akt in inProcedureActs" class="list-group-item">
+	   <input type="radio" name="akt" ng-model="$parent.selectedf" ng-value="akt.fname"> 
+	   <a href="#"> {{ akt.name }}</a></label>
+	  </div>
+	</div>
+	
+	<div class="input-group input-group-lg">
+	  <span class="input-group-btn">
+	    <label class="btn btn-primary btn-file">
+		  <span class="glyphicon glyphicon-file"></span> Browse... 
+		  <input type="file" on-read-file="setFile(contents, filename)" style="display: none;"/>
+		</label>
+	  </span>
+	  <input ng-model="filename" type="text" class="form-control" placeholder="Filename.xml" disabled>
+	  <span class="input-group-btn">
+	  	<button ng-click="uploadFile()" class="btn btn-success" type="button">
+	  	  <span class="glyphicon glyphicon-upload"></span> Upload
+	  	</button>
+	  </span>
+	</div>
+	
+</div>

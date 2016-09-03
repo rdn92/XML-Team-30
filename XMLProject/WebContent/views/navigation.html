@@ -6,12 +6,11 @@
     <ul class="nav navbar-nav">
       <li ui-sref-active="active"><a ui-sref="home">Почетна</a></li>
       <li ng-hide="user" ui-sref-active="active"><a ui-sref="login">Пријави се</a></li>
-      <li ng-hide="user" ui-sref-active="active"><a ui-sref="register">Региструј се</a></li>
       <li ng-hide="!user" ui-sref-active="active"><a ui-sref="session" ui-sref-opts="{reload: true, notify: true}">Скупштина</a></li>
     </ul>
     <ul ng-hide="!user" class="nav navbar-nav navbar-right">
-    	<li>
-    		<a href="#/"><span class="glyphicon glyphicon-user"></span> {{ user.username }}</a>
+    	<li ui-sref-active="active">
+    		<a ui-sref="profile"><span class="glyphicon glyphicon-user"></span> {{ user.username }}</a>
 		</li>
 		<li>
 			<a href="#/" data-ng-controller=logoutController ng-click="logout()"><span class="glyphicon glyphicon-log-out"></span> Одјави се</a>

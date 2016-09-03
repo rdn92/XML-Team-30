@@ -40,7 +40,20 @@ XMLApp.controller('sessionActController', ['$scope', '$rootScope', '$window', '$
     };
     
 	$scope.uploadFile = function() {
-		actService.upload($scope.xml, $rootScope.user.username);
+		actService.upload($scope.xml, $rootScope.user.username).then(
+				function(response) {
+					if (response.data.startsWith("Upload of an XML file succeed.")) {
+						console.log(response.data);
+						$state.reload();
+					} else {
+						console.warn(response.data);
+					}
+				},
+				function(response) {
+					console.warn(response.data);
+				}
+			);
+		
     };
 		
 }]);

@@ -15,6 +15,9 @@ XMLApp.controller('sessionController', ['$scope', '$rootScope', '$window', '$sta
 	} else if ($localStorage.state == 'amendment') {
 		$rootScope.state = 'amendment';
 		$state.go('session.amendment');
+	} else if ($localStorage.state == 'end') {
+		$rootScope.state = 'end';
+		$state.go('session.end');
 	}
 
 }]);

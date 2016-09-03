@@ -13,15 +13,22 @@ import com.marklogic.client.DatabaseClientFactory;
 import com.marklogic.client.ResourceNotFoundException;
 import com.marklogic.client.document.DocumentPage;
 import com.marklogic.client.document.DocumentRecord;
+import com.marklogic.client.document.DocumentUriTemplate;
 import com.marklogic.client.document.XMLDocumentManager;
+import com.marklogic.client.eval.EvalResult;
+import com.marklogic.client.eval.EvalResultIterator;
+import com.marklogic.client.eval.ServerEvaluationCall;
+import com.marklogic.client.io.DocumentMetadataHandle;
 import com.marklogic.client.io.JAXBHandle;
 import com.marklogic.client.query.QueryManager;
 import com.marklogic.client.query.StructuredQueryBuilder;
 import com.marklogic.client.query.StructuredQueryDefinition;
 
+import entities.act.Akt;
+import entities.amendment.Amandman;
 import xmldb.Util.ConnectionProperties;
 
-public class EntityManagerMarkLogic<T, ID extends Serializable> {
+public class EntityManagerMarkLogic<T> {
 	
 	private String schemaName;
 	
@@ -41,7 +48,7 @@ public class EntityManagerMarkLogic<T, ID extends Serializable> {
 	}
 	
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public T find(ID resourceId) {
+	public T find(String resourceId) {
 		
 		DatabaseClient client = initializeDatabaseClient();
 		
@@ -50,7 +57,7 @@ public class EntityManagerMarkLogic<T, ID extends Serializable> {
 		JAXBHandle readHandle = new JAXBHandle(context);
 		
 		try {
-			xmlManager.read("/" + schemaName + "/" + resourceId + ".xml", readHandle);
+			xmlManager.read(schemaName + resourceId + ".xml", readHandle);
 		} catch (ResourceNotFoundException e) {
 			client.release();
 			return entity;
@@ -62,15 +69,27 @@ public class EntityManagerMarkLogic<T, ID extends Serializable> {
 	}
 	
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	public void persist(T entity, Long id) {
+	public void persist(T entity, String collId, boolean generateUri) {
 		
 		DatabaseClient client = initializeDatabaseClient();
-		
-		String resourceId = String.valueOf(id);
 		XMLDocumentManager xmlManager = client.newXMLDocumentManager();
+		DocumentUriTemplate template = null;			
+		
+		if (generateUri) {
+			template = xmlManager.newDocumentUriTemplate("xml");
+			template.setDirectory(schemaName);
+		}
+			
 		JAXBHandle writeHandle = new JAXBHandle(context);
 		writeHandle.set(entity);
-		xmlManager.write("/" + schemaName + "/" + resourceId + ".xml", writeHandle);
+		DocumentMetadataHandle metadata = new DocumentMetadataHandle();
+		metadata.getCollections().add(collId);
+		
+		if (generateUri) {
+			xmlManager.create(template, metadata, writeHandle);
+		} else {
+			xmlManager.write(schemaName, metadata, writeHandle);
+		}
 		
 		client.release();
 	}
@@ -120,7 +139,7 @@ public class EntityManagerMarkLogic<T, ID extends Serializable> {
 //		StructuredQueryBuilder qb = new StructuredQueryBuilder();
 //		StructuredQueryDefinition query = qb.and(qb.wordConstraint("buyerAddress", "Nicija"),
 //		qb.directory(1, "/invoice/"));
-		query.setDirectory("/" + schemaName + "/");
+		query.setDirectory(schemaName);
 		List<T> results = new ArrayList<T>();
 		JAXBHandle readHandle = new JAXBHandle(context);
 	    XMLDocumentManager xmlManager = client.newXMLDocumentManager();
@@ -128,10 +147,38 @@ public class EntityManagerMarkLogic<T, ID extends Serializable> {
 		while (documents.hasNext()) {
 		    DocumentRecord document = documents.next();
 		    document.getContent(readHandle);
-		    results.add((T) readHandle.get());
+		    System.out.println(document.getUri());
+		    if (readHandle.get() instanceof Akt) {
+		    	Akt a = (Akt) readHandle.get();
+		    	a.setFilename(document.getUri());
+		    	results.add((T) a);
+		    } else if (readHandle.get() instanceof Amandman) {
+		    	Amandman a = (Amandman) readHandle.get();
+		    	a.setFilename(document.getUri());
+		    	results.add((T) a);
+		    } else 
+		    	results.add((T) readHandle.get());
 		}
-		
+		client.release();
 		return results;
+	}
+	
+	public String executeXQuery(String query) {
+		DatabaseClient client = initializeDatabaseClient();
+		
+		ServerEvaluationCall invoker = client.newServerEval();
+		invoker.xquery(query);
+		EvalResultIterator response = invoker.eval();
+		String retVal = "";
+		if (response.hasNext()) {
+			for (EvalResult result : response) {
+				retVal += result.getString() + "\n";
+			}
+		} else { 		
+			System.out.println("Your query returned an empty sequence.");
+		}
+		client.release();
+		return retVal;
 	}
 	
 	/**
@@ -162,7 +209,7 @@ public class EntityManagerMarkLogic<T, ID extends Serializable> {
 		
 		StructuredQueryBuilder qb = new StructuredQueryBuilder();
 		StructuredQueryDefinition query = qb.wordConstraint("buyerAddress", "Nicija");
-		query.setDirectory("/" + schemaName + "/");
+		query.setDirectory(schemaName);
 //	    SearchHandle searchHandle = queryMgr.search(query, new SearchHandle());
 //	    StringHandle s = queryMgr.search(query, new StringHandle());
 //	    System.out.println("nesto"+s.get().length());

@@ -1,0 +1,47 @@
+<div ng-show="user.role === 'president'">
+	
+	
+	
+	<form ng-submit="potvrdi()">
+	<div class="form-group">
+	  <label>Акти:</label>
+	  <div class="list-group">
+	   <label ng-repeat="akt in inProcedureActs" class="list-group-item">
+	   <input type="radio" name="akt" ng-model="$parent.selectedf" ng-value="akt.fname"> 
+	   <a href="#"> {{ akt.name }}</a></label>
+	  </div>
+	  </div>
+	  <div class="form-group">
+	  <label>Амандмани:</label>
+	  <div class="list-group">
+	   <label ng-repeat="am in inProcedureAmend" class="list-group-item">
+	   <input type="radio" name="am" ng-model="$parent.selectedf2" ng-value="am.fname"> 
+	   <a href="#"> {{ am.name }}</a></label>
+	  </div>
+	  </div>
+	  
+	<div class="form-group">
+	  <label>За:</label>
+	  <input ng-model="yes" class="form-control" type="number" min="0" max="250">
+	</div>
+	<div class="form-group">
+	  <label for="usr">Против:</label>
+	  <input ng-model="no" class="form-control" type="number" min="0" max="250">
+	</div>
+	<div class="form-group">
+	  <label for="usr">Суздржано:</label>
+	  <input ng-model="uncategorized" class="form-control" type="number" min="0" max="250">
+	</div>
+	  <button type="submit" class="btn btn-default">Потврди</button>
+	</form>
+	
+	<br>
+	<button ng-click="nextSession()" type="button" class="btn btn-primary btn-lg">Заврши амандмане</button>
+	
+	
+</div>
+
+<div ng-show="user.role === 'alderman'">
+	<div class="alert alert-warning" role="alert">Скупштина је тренутно затворена. Пребројавање гласова у току.</div>
+	<div  class="center-block"><img src="assets/img/snslogo.jpg" align="middle"></div>
+</div>

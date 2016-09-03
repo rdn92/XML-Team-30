@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified"
+    targetNamespace="http://www.skupstinans.rs/amandmani"
+    xmlns:am="http://www.skupstinans.rs/amandmani" xmlns:ak="http://www.skupstinans.rs/akti">
+
+    <xs:import id="ak" namespace="http://www.skupstinans.rs/akti" schemaLocation="act.xsd"/>
+    <xs:element name="Amandman">
+        <xs:complexType>
+            <xs:sequence maxOccurs="1">
+                <xs:element name="Naslov" type="xs:string"/>
+                <xs:sequence maxOccurs="unbounded">
+                    <xs:choice>
+                        <xs:element ref="ak:Clan"/>
+                        <xs:element ref="ak:Tacka"/>
+                        <xs:element ref="ak:Stav"/>
+                        <xs:element ref="ak:Alineja"/>
+                        <xs:element ref="ak:NormativniDeo"/>
+                    </xs:choice>
+                    <xs:element name="Obrazlozenje" type="xs:string"/>
+                </xs:sequence>
+            </xs:sequence>
+            <xs:attribute name="korisnik" type="xs:string"/>
+            <xs:attribute name="filename" type="xs:string"/>
+            <xs:attribute name="aktRef" type="xs:string"/>
+        </xs:complexType>
+    </xs:element>
+</xs:schema>

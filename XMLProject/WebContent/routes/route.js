@@ -35,7 +35,12 @@ XMLApp.config(function($stateProvider, $urlRouterProvider) {
         .state('session.end', {
             url: '/sessionend',
             templateUrl: 'views/sessionEnd.html',
-//            controller: 'sessionActController'
+            controller: 'sessionEndController'
+        })
+        .state('profile', {
+            url: '/profile',
+            templateUrl: 'views/profile.html',
+            controller: 'profileController'
         });
     
     $urlRouterProvider.otherwise('/');
