@@ -1,5 +1,7 @@
 package services;
 
+import java.util.List;
+
 import javax.ejb.EJB;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -12,7 +14,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.marklogic.client.query.StructuredQueryBuilder;
+import com.marklogic.client.query.StructuredQueryDefinition;
 
+import entities.amendment.Amandman;
 import entities.users.Users;
 import sessions.users.UsersDaoLocal;
 
@@ -56,7 +61,7 @@ public class UsersService {
 //			log.error(e.getMessage(), e);
 //		}
 		
-		usersDao.executeXQuery("xdmp:collection-delete(\"/amendment/inprocedure/\")");
+//		usersDao.executeXQuery("xdmp:collection-delete(\"/amendment/inprocedure/\")");
 
 		return null;
     }	

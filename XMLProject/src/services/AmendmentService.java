@@ -89,6 +89,31 @@ public class AmendmentService {
     }	
 	
 	@GET
+	@Path("/getInProcedureAmendU/{username}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public String getInProcedureAmendU(@PathParam("username") String userName) {
+		
+		StructuredQueryBuilder qb = new StructuredQueryBuilder();
+		StructuredQueryDefinition query = qb.collection("/amendment/inprocedure/");
+		List<Amandman> list = amendDao.executeQuery(query);
+		JSONArray res = new JSONArray();
+		for (Amandman a : list) {
+			if (a.getKorisnik().equals(userName)) {
+				JSONObject obj = new JSONObject();
+				try {
+					obj.put("name", a.getNaslov());
+					obj.put("fname", a.getFilename());
+				} catch (JSONException e) {
+					log.error(e.getMessage(), e);
+				}
+				res.put(obj);
+			}
+		}
+		
+		return res.toString();
+    }	
+	
+	@GET
 	@Path("/setAccepted/{fname}")
     @Produces(MediaType.APPLICATION_JSON)
     public String setAccepted(@PathParam("fname") String fname) {
@@ -100,5 +125,56 @@ public class AmendmentService {
     @Produces(MediaType.APPLICATION_JSON)
     public String setRefused(@PathParam("fname") String fname) {
 		return amendDao.executeXQuery("xdmp:document-delete(\"/amendment/" + fname + ".xml\")");
+    }	
+	
+	@GET
+	@Path("/search/{term}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public String search(@PathParam("term") String term) {
+		
+		StructuredQueryBuilder qb = new StructuredQueryBuilder();
+		StructuredQueryDefinition query = 
+			    qb.and(qb.term(term), 
+			    		qb.or(qb.collection("/amendment/inprocedure/"), qb.collection("/amendment/accepted/")));
+		List<Amandman> list = amendDao.executeQuery(query);
+		JSONArray res = new JSONArray();
+		for (Amandman a : list) {
+			JSONObject obj = new JSONObject();
+			try {
+				obj.put("name", a.getNaslov());
+				obj.put("fname", a.getFilename());
+			} catch (JSONException e) {
+				log.error(e.getMessage(), e);
+			}
+			res.put(obj);
+			
+		}
+		
+		return res.toString();
+    }	
+	
+	@GET
+	@Path("/getAllAmend")
+    @Produces(MediaType.APPLICATION_JSON)
+    public String getAllAmend() {
+		
+		StructuredQueryBuilder qb = new StructuredQueryBuilder();
+		StructuredQueryDefinition query = 
+				qb.or(qb.collection("/amendment/inprocedure/"), qb.collection("/amendment/accepted/"));
+		List<Amandman> list = amendDao.executeQuery(query);
+		JSONArray res = new JSONArray();
+		for (Amandman a : list) {
+			JSONObject obj = new JSONObject();
+			try {
+				obj.put("name", a.getNaslov());
+				obj.put("fname", a.getFilename());
+			} catch (JSONException e) {
+				log.error(e.getMessage(), e);
+			}
+			res.put(obj);
+			
+		}
+		
+		return res.toString();
     }	
 }

@@ -1,6 +1,5 @@
 package sessions.common;
 
-import java.io.Serializable;
 import java.util.List;
 
 import com.marklogic.client.query.StructuredQueryDefinition;

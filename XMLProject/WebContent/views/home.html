@@ -1,4 +1,23 @@
-<div class="jumbotron">
-   <h1>Добро дошли!</h1>
-   <p>На најбољи бла бла блааа...</p>
- </div>
+<div class="input-group">
+ <input ng-model="term" type="text" class="form-control" placeholder="Тражи...">
+ <span class="input-group-btn">
+   <button ng-click="search()" class="btn btn-default" type="button">Крени!</button>
+ </span>
+</div>
+ <br>
+<div class="form-group">
+  <label>Акти:</label>
+  <div class="list-group">
+   <label ng-repeat="akt in acts" class="list-group-item">
+   <input type="radio" name="akt" ng-model="$parent.selectedf" ng-value="akt.fname"> 
+   <a href="#"> {{ akt.name }}</a></label>
+  </div>
+  </div>
+  <div class="form-group">
+  <label>Амандмани:</label>
+  <div class="list-group">
+   <label ng-repeat="am in amendments" class="list-group-item">
+   <input type="radio" name="am" ng-model="$parent.selectedf2" ng-value="am.fname"> 
+   <a href="#"> {{ am.name }}</a></label>
+  </div>
+  </div>

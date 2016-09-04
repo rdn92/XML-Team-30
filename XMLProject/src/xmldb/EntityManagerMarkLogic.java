@@ -75,21 +75,25 @@ public class EntityManagerMarkLogic<T> {
 		XMLDocumentManager xmlManager = client.newXMLDocumentManager();
 		DocumentUriTemplate template = null;			
 		
+		template = xmlManager.newDocumentUriTemplate("xml");
 		if (generateUri) {
-			template = xmlManager.newDocumentUriTemplate("xml");
 			template.setDirectory(schemaName);
+		} else {
+			template.setDirectory("/nsarchive/");
 		}
+		
+		
 			
 		JAXBHandle writeHandle = new JAXBHandle(context);
 		writeHandle.set(entity);
 		DocumentMetadataHandle metadata = new DocumentMetadataHandle();
 		metadata.getCollections().add(collId);
 		
-		if (generateUri) {
+//		if (generateUri) {
 			xmlManager.create(template, metadata, writeHandle);
-		} else {
-			xmlManager.write(schemaName, metadata, writeHandle);
-		}
+//		} else {
+//			xmlManager.write(schemaName, metadata, writeHandle);
+//		}
 		
 		client.release();
 	}

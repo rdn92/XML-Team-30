@@ -26,6 +26,7 @@ import org.codehaus.jettison.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.marklogic.client.query.StructuredQueryBuilder;
 import com.marklogic.client.query.StructuredQueryDefinition;
 
@@ -40,17 +41,6 @@ public class ActService {
 	
 	@EJB
 	private ActDaoLocal actDao;
-	
-	@GET
-    @Produces(MediaType.APPLICATION_XML)
-    public Users create() {
-		
-		StructuredQueryBuilder qb = new StructuredQueryBuilder();
-		StructuredQueryDefinition query = qb.collection("/act/inprocedure/");
-		actDao.executeQuery(query);
-		
-		return null;
-    }	
 	
 	@PUT
 	@Path("/upload/{username}")
@@ -102,13 +92,39 @@ public class ActService {
 		}
 		
 		return res.toString();
+    }
+	
+	@GET
+	@Path("/getInProcedureActsU/{username}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public String getInProcedureActsU(@PathParam("username") String userName) {
+		
+		StructuredQueryBuilder qb = new StructuredQueryBuilder();
+		StructuredQueryDefinition query = qb.collection("/act/inprocedure/");
+		List<Akt> list = actDao.executeQuery(query);
+		JSONArray res = new JSONArray();
+		for (Akt a : list) {
+			if (a.getKorisnik().equals(userName)) {
+				JSONObject obj = new JSONObject();
+				try {
+					obj.put("name", a.getNaslov());
+					obj.put("fname", a.getFilename());
+				} catch (JSONException e) {
+					log.error(e.getMessage(), e);
+				}
+				res.put(obj);
+			}
+		}
+		
+		return res.toString();
     }	
 	
 	@GET
 	@Path("/setAccepted/{fname}")
     @Produces(MediaType.APPLICATION_JSON)
     public String setAccepted(@PathParam("fname") String fname) {
-
+		Akt akt = actDao.findById(fname);
+		actDao.persist(akt, "/act/" + fname + ".xml", false);
 		return actDao.executeXQuery("xdmp:document-set-collections(\"/act/" + fname + ".xml\", (\"/act/accepted/\"))");
     }
 	
@@ -119,4 +135,53 @@ public class ActService {
 
 		return actDao.executeXQuery("xdmp:document-delete(\"/act/" + fname + ".xml\")");
     }	
+	
+	@GET
+	@Path("/search/{term}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public String search(@PathParam("term") String term) {
+		
+		StructuredQueryBuilder qb = new StructuredQueryBuilder();
+		StructuredQueryDefinition query = 
+			    qb.and(qb.term(term), 
+			    		qb.or(qb.collection("/act/accepted/"), qb.collection("/act/inprocedure/")));
+		List<Akt> list = actDao.executeQuery(query);
+		JSONArray res = new JSONArray();
+		for (Akt a : list) {
+			JSONObject obj = new JSONObject();
+			try {
+				obj.put("name", a.getNaslov());
+				obj.put("fname", a.getFilename());
+			} catch (JSONException e) {
+				log.error(e.getMessage(), e);
+			}
+			res.put(obj);
+		}
+		
+		return res.toString();
+    }
+	
+	@GET
+	@Path("/getAllActs")
+    @Produces(MediaType.APPLICATION_JSON)
+    public String getAllActs() {
+		
+		StructuredQueryBuilder qb = new StructuredQueryBuilder();
+		StructuredQueryDefinition query = 
+			    		qb.or(qb.collection("/act/accepted/"), qb.collection("/act/inprocedure/"));
+		List<Akt> list = actDao.executeQuery(query);
+		JSONArray res = new JSONArray();
+		for (Akt a : list) {
+			JSONObject obj = new JSONObject();
+			try {
+				obj.put("name", a.getNaslov());
+				obj.put("fname", a.getFilename());
+			} catch (JSONException e) {
+				log.error(e.getMessage(), e);
+			}
+			res.put(obj);
+		}
+		
+		return res.toString();
+    }
 }

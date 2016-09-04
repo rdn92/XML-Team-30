@@ -14,11 +14,23 @@ XMLApp.service('actService', function($http) {
 		return $http.get(root + "/act/getInProcedureActs");
 	}
 	
+	this.getInProcedureActsU = function(user) {
+		return $http.get(root + "/act/getInProcedureActsU/" + user);
+	}
+	
 	this.setAccepted = function(akt) {
 		return $http.get(root + "/act/setAccepted/" + akt);
 	}
 	
 	this.setRefused = function(akt) {
 		return $http.get(root + "/act/setRefused/" + akt);
+	}
+	
+	this.getAllActs = function() {
+		return $http.get(root + "/act/getAllActs");
+	}
+	
+	this.search = function(s) {
+		return $http.get(root + "/act/search/" + s);
 	}
 });
