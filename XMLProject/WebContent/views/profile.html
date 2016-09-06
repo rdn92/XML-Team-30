@@ -4,7 +4,7 @@
 	  <div class="list-group">
 	   <label ng-repeat="akt in inProcedureActs" class="list-group-item">
 	   <input type="radio" name="akt" ng-model="$parent.selectedf" ng-value="akt.fname"> 
-	   <a href="#"> {{ akt.name }}</a></label>
+	   <a target="_blank" href="act/pdf/{{ akt.fname.replace('/act/', '').replace('.xml', '') }}"> {{ akt.name }}</a></label>
 	  </div>
 	  </div>
 	  <div class="form-group">

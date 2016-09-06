@@ -1,6 +1,14 @@
 package services;
 
+import java.io.BufferedOutputStream;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.io.StringReader;
+import java.io.StringWriter;
 import java.util.List;
 
 import javax.ejb.EJB;
@@ -11,20 +19,38 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.ResponseBuilder;
 import javax.xml.XMLConstants;
 import javax.xml.bind.JAXBContext;
+import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Result;
 import javax.xml.transform.Source;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.sax.SAXResult;
+import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
 import javax.xml.validation.Validator;
 
+import org.apache.fop.apps.FOUserAgent;
+import org.apache.fop.apps.Fop;
+import org.apache.fop.apps.FopFactory;
+import org.apache.xmlgraphics.util.MimeConstants;
 import org.codehaus.jettison.json.JSONArray;
 import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.w3c.dom.Document;
+import org.xml.sax.SAXException;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.marklogic.client.query.StructuredQueryBuilder;
@@ -184,4 +210,75 @@ public class ActService {
 		
 		return res.toString();
     }
+	
+	@GET
+	@Path("pdf/{fname}")
+	@Produces("application/pdf")
+    public Response pdf(@PathParam("fname") String fname) {
+		try {
+			String path = this.getClass().getResource("/fop.xconf").getFile();
+			FopFactory fopFactory = FopFactory.newInstance(new File(path));
+			TransformerFactory transformerFactory= TransformerFactory.newInstance(
+					"net.sf.saxon.TransformerFactoryImpl", null);
+			
+			path = this.getClass().getResource("/schemas/act-fo.xsl").getFile();
+			File xsltFile = new File(path);
+			
+			StreamSource transformSource = new StreamSource(xsltFile);
+			
+			TransformerFactory tf = TransformerFactory.newInstance();
+			Transformer transformer = tf.newTransformer();
+			transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
+			StringWriter writer = new StringWriter();
+			
+			Akt akt = actDao.findById(fname);
+			
+			JAXBContext jaxbContext = JAXBContext.newInstance(Akt.class);
+			Marshaller m = jaxbContext.createMarshaller();
+			
+			DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+			dbf.setNamespaceAware(true);
+			DocumentBuilder db = dbf.newDocumentBuilder();
+			Document doc = db.newDocument();
+			m.marshal(akt, doc);
+			
+			
+			transformer.transform(new DOMSource(doc), new StreamResult(writer));
+			
+			
+			String output = writer.getBuffer().toString().replaceAll("\n|\r", "");
+			
+			StreamSource source = new StreamSource(new ByteArrayInputStream(output.getBytes("UTF8")),"UTF-8");
+			 
+			FOUserAgent userAgent = fopFactory.newFOUserAgent();
+			ByteArrayOutputStream outStream = new ByteArrayOutputStream();
+			Transformer xslFoTransformer = transformerFactory.newTransformer(transformSource);
+			Fop fop = fopFactory.newFop(MimeConstants.MIME_PDF, userAgent, outStream);
+
+			Result res = new SAXResult(fop.getDefaultHandler());
+
+			xslFoTransformer.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
+			xslFoTransformer.transform(source, res);
+			
+			path = this.getClass().getResource("/pdf/blank.pdf").getFile();
+			path.replace("blank.pdf", "");
+			
+			File pdfFile = new File(path + fname + ".pdf");
+//			System.out.println(pdfFile.getAbsolutePath());
+			OutputStream out = new BufferedOutputStream(new FileOutputStream(pdfFile));
+			out.write(outStream.toByteArray());
+			
+			out.close();
+			
+			ResponseBuilder response = Response.ok((Object) pdfFile);
+			response.header("Content-Disposition",
+					"filename=" + fname + ".pdf");
+			return response.build();
+			
+		} catch (Exception e) {
+			log.error(e.getMessage(), e);
+		}
+		
+		return null;
+	}
 }
